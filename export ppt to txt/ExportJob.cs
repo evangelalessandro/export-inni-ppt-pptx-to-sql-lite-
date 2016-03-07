@@ -10,7 +10,6 @@ namespace export_ppt_to_txt
     public class ExportJob :IDisposable
     {
         public String method = "";
-        public String file = "";
         public String options = "";
         //ExportingDialog ed;
 
@@ -28,51 +27,41 @@ namespace export_ppt_to_txt
             return tempDirectory;
         }
 
-        Microsoft.Office.Interop.PowerPoint.Application openPowerPoint()
+        Microsoft.Office.Interop.PowerPoint.Application openPowerPoint(string file)
         {
             Microsoft.Office.Interop.PowerPoint.Application powerPoint = new Microsoft.Office.Interop.PowerPoint.Application();
             foreach (Presentation ppt in powerPoint.Presentations)
             {
                 ppt.Close();
             }
-            powerPoint.Presentations.Open(file);
+            powerPoint.Presentations.Open(file,
+                Microsoft.Office.Core.MsoTriState.msoFalse,Microsoft.Office.Core.MsoTriState.msoTrue,Microsoft.Office.Core.MsoTriState.msoFalse);
             return powerPoint;
         }
 
-        public void runInForm(string myFile)
+        public string convertpptTopptx(string myFile)
         {
-            file = myFile;
-            System.Diagnostics.Debug.WriteLine("Exporting " + file + "...");
-            String tempDir = getTempDir();
-            System.Diagnostics.Debug.WriteLine("Tempoary Directory: " + tempDir);
-
-                 Package zipPresentation = null;
-                if (options.Contains("exportNotes"))
-                {
-                    String tmpFile = Path.Combine(tempDir, "pres.zip");
-                    File.Copy(file, tmpFile);
-                    zipPresentation = ZipPackage.Open(new FileStream(tmpFile, FileMode.Open));
-                }
-
-                Microsoft.Office.Interop.PowerPoint.Application powerPoint = openPowerPoint();
-                System.Diagnostics.Debug.WriteLine("PowerPoint should have loaded document");
-                System.Diagnostics.Debug.WriteLine("Exporting as handouts...");
+                 
+                Microsoft.Office.Interop.PowerPoint.Application powerPoint = openPowerPoint(myFile);
+            
                 Presentation toExport = powerPoint.Presentations[1];
-
+            myFile = myFile + ".pptx";
+                toExport.SaveAs(myFile, PpSaveAsFileType.ppSaveAsOpenXMLPresentation);
+            return myFile;
                 //System.Diagnostics.Debug.WriteLine("Opening Publisher Template");
                 //Microsoft.Office.Interop.Publisher.Application publisher = new Microsoft.Office.Interop.Publisher.Application();
 
-                //String pubFile = Path.Combine(tempDir, "out.pub");
-                //File.Copy(Path.Combine(
-                //    Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath),
-                //    "Templates",
-                //    "Handout-3P.pub" // TODO: Add option for different templates
-                //), pubFile);
-                //Document publisherDoc = publisher.Open(pubFile);
-                //publisher.ActiveWindow.Visible = true;
+            //String pubFile = Path.Combine(tempDir, "out.pub");
+            //File.Copy(Path.Combine(
+            //    Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath),
+            //    "Templates",
+            //    "Handout-3P.pub" // TODO: Add option for different templates
+            //), pubFile);
+            //Document publisherDoc = publisher.Open(pubFile);
+            //publisher.ActiveWindow.Visible = true;
 
 
-                int slideWidth = (int)toExport.PageSetup.SlideWidth;
+            int slideWidth = (int)toExport.PageSetup.SlideWidth;
                 int slideHeight = (int)toExport.PageSetup.SlideHeight;
                 int slideCount = 1, onPage = 1;
                 //publisherDoc.Pages[onPage].Duplicate();
