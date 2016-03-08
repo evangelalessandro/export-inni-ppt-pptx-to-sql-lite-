@@ -118,7 +118,7 @@ namespace export_ppt_to_txt
         }
         private void InsertToDatabase(List<InnoItem> list)
         {
-            sql_con = new SQLiteConnection("Data Source=InnarioAvventistaDb.db;Version=3;New=True;Compress=True;");
+            sql_con = new SQLiteConnection("Data Source=iadb.db;Version=3;New=True;Compress=True;");
 
             ExecuteQuery("CREATE TABLE 'innarioadulti' (	'numero'	INTEGER NOT NULL," +
                     " 'titolo'	TEXT NOT NULL, " +
