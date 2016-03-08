@@ -10,5 +10,10 @@ namespace export_ppt_to_txt
         public string Titolo { get; set; }
         public int Numero { get; set; }
         public string Testo { get; set; }
+
+        public override string ToString()
+        {
+            return Numero.ToString();
+        }
     }
 }

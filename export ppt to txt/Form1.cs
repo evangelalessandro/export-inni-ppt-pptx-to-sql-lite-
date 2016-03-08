@@ -17,6 +17,9 @@ namespace export_ppt_to_txt
 {
     public partial class Form1 : Form
     {
+        private SQLiteConnection sql_con;
+        private SQLiteCommand sql_cmd;
+
         public Form1()
         {
             InitializeComponent();
@@ -53,8 +56,7 @@ namespace export_ppt_to_txt
 
         }
 
-        private string _filepptx = @"C:\Users\MioAle\Downloads\innario_completo\innario completo\" + "181. Scendi tu nel nostro petto.ppt";
-
+ 
         private void button2_Click(object sender, EventArgs e)
         {
             const string dir = @"C:\Users\MioAle\Downloads\innario_completo\innario completo\";
@@ -66,7 +68,7 @@ namespace export_ppt_to_txt
             }
 
             var innoList = new List<InnoItem>();
-            foreach (var filepptx in System.IO.Directory.EnumerateFiles(dir, "7*.pptx"))
+            foreach (var filepptx in System.IO.Directory.EnumerateFiles(dir, "*.pptx"))
             {
                 InnoItem newInno = new InnoItem();
                 int numberOfSlides = CountSlides(filepptx);
@@ -112,21 +114,29 @@ namespace export_ppt_to_txt
             dataGridView1.Refresh();
             dataGridView1.Update();
 
-            InsertToDatabase(innoList);
+            InsertToDatabase(innoList.OrderBy(a => a.Numero).ToList());
         }
-        private SQLiteConnection sql_con;
-        private SQLiteCommand sql_cmd;
-        private SQLiteDataAdapter DB;
         private void InsertToDatabase(List<InnoItem> list)
         {
-            sql_con = new SQLiteConnection("Data Source=hiad2.db;Version=3;New=False;Compress=True;");
+            sql_con = new SQLiteConnection("Data Source=InnarioAvventistaDb.db;Version=3;New=True;Compress=True;");
+
+            ExecuteQuery("CREATE TABLE 'innarioadulti' (	'numero'	INTEGER NOT NULL," +
+                    " 'titolo'	TEXT NOT NULL, " +
+                    " 'testo'	BLOB NOT NULL, " +
+                    " PRIMARY KEY(numero) " +
+                ")");
+
             foreach (var item in list)
             {
-                ExecuteQuery("Insert into InnarioAdulti (Numero,Titolo,Testo) Values('" +item.Numero.ToString() + "'," 
+
+                //ExecuteQuery("select numero from InnarioAdulti where Numero ='" 
+                //    + item.Numero.ToString() + "'");
+
+                ExecuteQuery("Insert into InnarioAdulti (Numero,Titolo,Testo) Values('" + item.Numero.ToString() + "',"
                    + "'" + item.Titolo + "'," + "'" + item.Testo + "')");
             }
-            
         }
+
         private void ExecuteQuery(string txtQuery)
         {
             sql_con.Open();
@@ -175,6 +185,9 @@ namespace export_ppt_to_txt
         {
             var numero = titolo.Trim().Split(" ".ToCharArray())[0];
             newInno.Numero = int.Parse(numero.Replace(".", ""));
+            if (newInno.Numero == 116)
+            {
+            }
             return numero;
         }
 
